@@ -5,7 +5,7 @@
     <Setting Name="EntityFields" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="SearchHistory" Type="System.String" Scope="User">
+    <Setting Name="WorkspaceSession" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

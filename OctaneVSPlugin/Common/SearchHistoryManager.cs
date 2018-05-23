@@ -26,7 +26,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
     /// </summary>
     public static class SearchHistoryManager
     {
-        private static SearchHistoryMetadata _metadata;
+        private static WorkspaceSessionMetadata _metadata;
 
         /// <summary>
         /// Maximum number of elements saved for the search history
@@ -41,7 +41,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             if (string.IsNullOrEmpty(filter))
                 return;
 
-            LoadHistoryIfNeeded();
+            LoadMetadataIfNeeded();
 
             var newHistory = _metadata.queries.ToList();
             var oldHistory = _metadata.queries.ToList();
@@ -55,7 +55,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
 
             _metadata.queries = newHistory;
 
-            SaveHistory();
+            SaveMetadata();
         }
 
         /// <summary>
@@ -65,18 +65,18 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         {
             get
             {
-                LoadHistoryIfNeeded();
+                LoadMetadataIfNeeded();
                 HandleDifferentContext();
                 return _metadata.queries.ToList();
             }
         }
 
-        private static void LoadHistoryIfNeeded()
+        private static void LoadMetadataIfNeeded()
         {
             if (_metadata != null)
                 return;
 
-            _metadata = Utility.DeserializeFromJson(OctanePluginSettings.Default.SearchHistory, new SearchHistoryMetadata
+            _metadata = Utility.DeserializeFromJson(OctanePluginSettings.Default.WorkspaceSession, new WorkspaceSessionMetadata
             {
                 id = ConstructId(),
                 queries = new List<string>()
@@ -90,20 +90,20 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
                 return;
             }
 
-            _metadata = new SearchHistoryMetadata
+            _metadata = new WorkspaceSessionMetadata
             {
                 id = ConstructId(),
                 queries = new List<string>()
             };
 
-            SaveHistory();
+            SaveMetadata();
         }
 
-        private static void SaveHistory()
+        private static void SaveMetadata()
         {
             try
             {
-                OctanePluginSettings.Default.SearchHistory = Utility.SerializeToJson(_metadata);
+                OctanePluginSettings.Default.WorkspaceSession = Utility.SerializeToJson(_metadata);
                 OctanePluginSettings.Default.Save();
             }
             catch (Exception)
@@ -117,13 +117,26 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         }
 
         [DataContract]
-        public class SearchHistoryMetadata
+        public class WorkspaceSessionMetadata
         {
             [DataMember]
             public string id;
 
             [DataMember]
             public List<string> queries;
+
+            [DataMember]
+            public List<string> entities;
+        }
+
+        [DataContract]
+        public class SimpleEntity
+        {
+            [DataMember]
+            public string id;
+
+            [DataMember]
+            public string typeName;
         }
     }
 }
