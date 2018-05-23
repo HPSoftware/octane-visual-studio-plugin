@@ -85,7 +85,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
 
             SearchFilter = SearchFilter.Trim();
 
-            SearchHistoryManager.UpdateHistory(SearchFilter);
+            WorkspaceSessionPersistanceManager.UpdateHistory(SearchFilter);
             NotifyPropertyChanged("SearchHistory");
 
             var searchWindow = PluginWindowManager.ObtainSearchWindow(MainWindow.PluginPackage);
@@ -100,7 +100,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             get
             {
                 return new ObservableCollection<string>(_mode == MainWindowMode.ItemsLoaded
-                           ? SearchHistoryManager.History
+                           ? WorkspaceSessionPersistanceManager.History
                            : new List<string>());
             }
         }

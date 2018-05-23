@@ -236,11 +236,11 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.ViewModel
             var viewModel = new OctaneMyItemsViewModel();
             viewModel.LoadMyItemsAsync().Wait();
 
-            var expectedHistory = ExecuteSearches(viewModel, SearchHistoryManager.MaxSearchHistorySize + 1);
+            var expectedHistory = ExecuteSearches(viewModel, WorkspaceSessionPersistanceManager.MaxSearchHistorySize + 1);
 
             expectedHistory.Reverse();
 
-            CollectionAssert.AreEqual(expectedHistory.Take(SearchHistoryManager.MaxSearchHistorySize).ToList(), viewModel.SearchHistory.ToList(), "Invalid search history");
+            CollectionAssert.AreEqual(expectedHistory.Take(WorkspaceSessionPersistanceManager.MaxSearchHistorySize).ToList(), viewModel.SearchHistory.ToList(), "Invalid search history");
         }
 
         [TestMethod]
@@ -252,9 +252,9 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.ViewModel
                 var viewModel = new OctaneMyItemsViewModel();
                 viewModel.LoadMyItemsAsync().Wait();
 
-                var expectedHistory = ExecuteSearches(viewModel, SearchHistoryManager.MaxSearchHistorySize + 1);
+                var expectedHistory = ExecuteSearches(viewModel, WorkspaceSessionPersistanceManager.MaxSearchHistorySize + 1);
                 expectedHistory.Reverse();
-                expectedHistory = expectedHistory.Take(SearchHistoryManager.MaxSearchHistorySize).ToList();
+                expectedHistory = expectedHistory.Take(WorkspaceSessionPersistanceManager.MaxSearchHistorySize).ToList();
 
                 OctaneConfiguration.WorkSpaceId = 1000000;
 

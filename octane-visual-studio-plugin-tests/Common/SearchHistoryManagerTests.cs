@@ -24,7 +24,7 @@ using System.Linq;
 namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
 {
     /// <summary>
-    /// Test class for <see cref="SearchHistoryManager"/>
+    /// Test class for <see cref="WorkspaceSessionPersistanceManager"/>
     /// </summary>
     [TestClass]
     public class SearchHistoryManagerTests : BaseOctanePluginTest
@@ -58,16 +58,16 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
-            SearchHistoryManager.UpdateHistory("a");
-            SearchHistoryManager.UpdateHistory("b");
+            WorkspaceSessionPersistanceManager.UpdateHistory("a");
+            WorkspaceSessionPersistanceManager.UpdateHistory("b");
             var expectedHistory = new List<string> { "b", "a" };
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history");
 
-            SearchHistoryManager.UpdateHistory(string.Empty);
+            WorkspaceSessionPersistanceManager.UpdateHistory(string.Empty);
 
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history after trying to add null");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history after trying to add null");
         }
 
         [TestMethod]
@@ -75,16 +75,16 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
-            SearchHistoryManager.UpdateHistory("a");
-            SearchHistoryManager.UpdateHistory("b");
+            WorkspaceSessionPersistanceManager.UpdateHistory("a");
+            WorkspaceSessionPersistanceManager.UpdateHistory("b");
             var expectedHistory = new List<string> { "b", "a" };
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history");
 
-            SearchHistoryManager.UpdateHistory(string.Empty);
+            WorkspaceSessionPersistanceManager.UpdateHistory(string.Empty);
 
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history after trying to add empty string");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history after trying to add empty string");
         }
 
         [TestMethod]
@@ -92,19 +92,19 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
             var expectedHistory = new List<string>();
-            for (var i = 0; i < SearchHistoryManager.MaxSearchHistorySize + 2; i++)
+            for (var i = 0; i < WorkspaceSessionPersistanceManager.MaxSearchHistorySize + 2; i++)
             {
                 expectedHistory.Add(i.ToString());
-                SearchHistoryManager.UpdateHistory(i.ToString());
+                WorkspaceSessionPersistanceManager.UpdateHistory(i.ToString());
             }
 
             expectedHistory.Reverse();
-            expectedHistory = expectedHistory.Take(SearchHistoryManager.MaxSearchHistorySize).ToList();
+            expectedHistory = expectedHistory.Take(WorkspaceSessionPersistanceManager.MaxSearchHistorySize).ToList();
 
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history");
         }
 
         [TestMethod]
@@ -112,18 +112,18 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
             var expectedHistory = new List<string>();
-            for (var i = 0; i < SearchHistoryManager.MaxSearchHistorySize; i++)
+            for (var i = 0; i < WorkspaceSessionPersistanceManager.MaxSearchHistorySize; i++)
             {
                 expectedHistory.Add(i.ToString());
-                SearchHistoryManager.UpdateHistory(i.ToString());
+                WorkspaceSessionPersistanceManager.UpdateHistory(i.ToString());
             }
 
             expectedHistory.Reverse();
 
-            CollectionAssert.AreEqual(expectedHistory, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(expectedHistory, WorkspaceSessionPersistanceManager.History, "Mismatched history");
         }
 
         [TestMethod]
@@ -131,18 +131,18 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
-            SearchHistoryManager.UpdateHistory("1");
+            WorkspaceSessionPersistanceManager.UpdateHistory("1");
 
-            var exposedHistoryManager = ExposedClass.From(typeof(SearchHistoryManager));
+            var exposedHistoryManager = ExposedClass.From(typeof(WorkspaceSessionPersistanceManager));
             exposedHistoryManager._metadata = null;
 
-            CollectionAssert.AreEqual(new List<string> { "1" }, SearchHistoryManager.History, "Mismatched history after reset");
+            CollectionAssert.AreEqual(new List<string> { "1" }, WorkspaceSessionPersistanceManager.History, "Mismatched history after reset");
 
-            SearchHistoryManager.UpdateHistory("2");
+            WorkspaceSessionPersistanceManager.UpdateHistory("2");
 
-            CollectionAssert.AreEqual(new List<string> { "2", "1" }, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(new List<string> { "2", "1" }, WorkspaceSessionPersistanceManager.History, "Mismatched history");
         }
 
 
@@ -174,17 +174,17 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Tests.Common
         {
             OctaneConfiguration.Url = Guid.NewGuid().ToString();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Invalid initial history");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Invalid initial history");
 
-            SearchHistoryManager.UpdateHistory("1");
+            WorkspaceSessionPersistanceManager.UpdateHistory("1");
 
             connectionSwitchAction();
 
-            CollectionAssert.AreEqual(new List<string>(), SearchHistoryManager.History, "Mismatched history after reset");
+            CollectionAssert.AreEqual(new List<string>(), WorkspaceSessionPersistanceManager.History, "Mismatched history after reset");
 
-            SearchHistoryManager.UpdateHistory("2");
+            WorkspaceSessionPersistanceManager.UpdateHistory("2");
 
-            CollectionAssert.AreEqual(new List<string> { "2" }, SearchHistoryManager.History, "Mismatched history");
+            CollectionAssert.AreEqual(new List<string> { "2" }, WorkspaceSessionPersistanceManager.History, "Mismatched history");
         }
     }
 }

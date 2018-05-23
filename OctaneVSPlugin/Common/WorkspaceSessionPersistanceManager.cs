@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+using MicroFocus.Adm.Octane.Api.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
     /// <summary>
     /// Class for managing the user's search history
     /// </summary>
-    public static class SearchHistoryManager
+    public static class WorkspaceSessionPersistanceManager
     {
         private static WorkspaceSessionMetadata _metadata;
 
@@ -66,15 +67,57 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             get
             {
                 LoadMetadataIfNeeded();
-                HandleDifferentContext();
+
                 return _metadata.queries.ToList();
             }
+        }
+
+        internal static void RegisterEntityWithDetailedView(BaseEntity entity)
+        {
+            LoadMetadataIfNeeded();
+
+            _metadata.entities.Add(new SimpleEntity { id = entity.Id, typeName = Utility.GetBaseEntityType(entity) });
+
+            SaveMetadata();
+        }
+
+        internal static void UnregisterEntityWithDetailedView(BaseEntity entity)
+        {
+            LoadMetadataIfNeeded();
+
+            var baseEntityType = Utility.GetBaseEntityType(entity);
+            _metadata.entities.RemoveAll(e => e.id == entity.Id && e.typeName == baseEntityType);
+
+            SaveMetadata();
+        }
+
+        internal static void UnregisterAllEntities()
+        {
+            LoadMetadataIfNeeded();
+
+            _metadata.entities = new List<SimpleEntity>();
+
+            SaveMetadata();
+        }
+
+        internal static List<BaseEntity> GetAllEntities()
+        {
+            LoadMetadataIfNeeded();
+
+            return _metadata.entities.Select(e =>
+            {
+                var entity = new BaseEntity(e.id);
+                entity.SetValue(BaseEntity.TYPE_FIELD, e.typeName);
+                return entity;
+            }).ToList();
         }
 
         private static void LoadMetadataIfNeeded()
         {
             if (_metadata != null)
                 return;
+
+            HandleDifferentContext();
 
             _metadata = Utility.DeserializeFromJson(OctanePluginSettings.Default.WorkspaceSession, new WorkspaceSessionMetadata
             {
@@ -126,7 +169,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             public List<string> queries;
 
             [DataMember]
-            public List<string> entities;
+            public List<SimpleEntity> entities;
         }
 
         [DataContract]

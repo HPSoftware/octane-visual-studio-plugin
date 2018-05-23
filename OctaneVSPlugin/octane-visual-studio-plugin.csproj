@@ -90,7 +90,7 @@
     <Compile Include="Common\HTMLConverter\HtmlToXamlConverter.cs" />
     <Compile Include="Common\IFieldsObserver.cs" />
     <Compile Include="Common\OctaneConfiguration.cs" />
-    <Compile Include="Common\SearchHistoryManager.cs" />
+    <Compile Include="Common\WorkspaceSessionPersistanceManager.cs" />
     <Compile Include="OctanePluginSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
