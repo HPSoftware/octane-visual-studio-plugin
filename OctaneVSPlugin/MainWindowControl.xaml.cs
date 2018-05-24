@@ -15,6 +15,7 @@
 */
 
 using MicroFocus.Adm.Octane.Api.Core.Entities;
+using MicroFocus.Adm.Octane.VisualStudio.Common;
 using MicroFocus.Adm.Octane.VisualStudio.View;
 using MicroFocus.Adm.Octane.VisualStudio.ViewModel;
 using System;
@@ -46,9 +47,22 @@ namespace MicroFocus.Adm.Octane.VisualStudio
         /// <summary>
         /// Initialize the data for the control
         /// </summary>
-        internal void Initialize()
+        internal async void Initialize()
         {
             _viewModel.LoadMyItemsAsync();
+
+            await FieldsMetadataService.Initialize();
+            try
+            {
+                foreach (var entity in WorkspaceSessionPersistanceManager.GetAllRegisteredEntities())
+                {
+                    DetailsToolWindow window = PluginWindowManager.ObtainDetailsWindow(MainWindow.PluginPackage, entity);
+                    window.LoadEntity(entity);
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private OctaneItemViewModel SelectedItem

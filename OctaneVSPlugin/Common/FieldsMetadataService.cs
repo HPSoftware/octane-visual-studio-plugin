@@ -52,6 +52,24 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         }
 
         /// <summary>
+        /// Initialize field metadata service
+        /// </summary>
+        internal static async System.Threading.Tasks.Task Initialize()
+        {
+            if (_octaneService != null)
+                return;
+
+            _octaneService = new OctaneServices(
+                OctaneConfiguration.Url,
+                OctaneConfiguration.SharedSpaceId,
+                OctaneConfiguration.WorkSpaceId,
+                OctaneConfiguration.Username,
+                OctaneConfiguration.Password);
+
+            await _octaneService.Connect();
+        }
+
+        /// <summary>
         /// Return the list of field metadata for the given entity type
         /// </summary>
         internal static async Task<List<FieldMetadata>> GetFieldMetadata(BaseEntity entity)
@@ -60,16 +78,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
                 return new List<FieldMetadata>();
 
             if (_octaneService == null)
-            {
-                _octaneService = new OctaneServices(
-                    OctaneConfiguration.Url,
-                    OctaneConfiguration.SharedSpaceId,
-                    OctaneConfiguration.WorkSpaceId,
-                    OctaneConfiguration.Username,
-                    OctaneConfiguration.Password);
-
-                await _octaneService.Connect();
-            }
+                await Initialize();
 
             List<FieldMetadata> fields = Cache.GetFieldMetadataList(entity);
             if (fields == null)

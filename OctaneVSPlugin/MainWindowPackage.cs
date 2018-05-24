@@ -16,7 +16,9 @@
 
 using EnvDTE;
 using MicroFocus.Adm.Octane.VisualStudio;
+using MicroFocus.Adm.Octane.VisualStudio.Common;
 using MicroFocus.Adm.Octane.VisualStudio.View;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System.Diagnostics.CodeAnalysis;
@@ -68,6 +70,13 @@ namespace octane_visual_studio_plugin
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+        }
+
+        protected override int QueryClose(out bool pfCanClose)
+        {
+            pfCanClose = true;
+            WorkspaceSessionPersistanceManager.MarkIsShuttingDownOperation();
+            return VSConstants.S_OK;
         }
 
         #region Package Members

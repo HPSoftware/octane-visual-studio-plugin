@@ -30,6 +30,11 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         private static WorkspaceSessionMetadata _metadata;
 
         /// <summary>
+        /// Flag used to know whether VS is shutting down
+        /// </summary>
+        private static bool _isShuttingDown;
+
+        /// <summary>
         /// Maximum number of elements saved for the search history
         /// </summary>
         internal const int MaxSearchHistorySize = 5;
@@ -42,7 +47,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             if (string.IsNullOrEmpty(filter))
                 return;
 
-            LoadMetadataIfNeeded();
+            ValidateMetadata();
 
             var newHistory = _metadata.queries.ToList();
             var oldHistory = _metadata.queries.ToList();
@@ -66,24 +71,50 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         {
             get
             {
-                LoadMetadataIfNeeded();
+                ValidateMetadata();
 
                 return _metadata.queries.ToList();
             }
         }
 
+        /// <summary>
+        /// Notify WorkspaceSessionPersistanceManager that Visual Studio is shutting down
+        /// </summary>
+        internal static void MarkIsShuttingDownOperation()
+        {
+            _isShuttingDown = true;
+        }
+
+        /// <summary>
+        /// Register given entity so that it's detailed window can be restored after VS restarts
+        /// </summary>
         internal static void RegisterEntityWithDetailedView(BaseEntity entity)
         {
-            LoadMetadataIfNeeded();
+            ValidateMetadata();
 
-            _metadata.entities.Add(new SimpleEntity { id = entity.Id, typeName = Utility.GetBaseEntityType(entity) });
+            var baseEntityType = Utility.GetBaseEntityType(entity);
+            if (_metadata.entities.Any(e => e.id == entity.Id && e.typeName == baseEntityType))
+                return;
+
+            _metadata.entities.Add(new SimpleEntity
+            {
+                id = entity.Id,
+                typeName = baseEntityType,
+                subTypeName = entity.GetStringValue(WorkItem.SUBTYPE_FIELD)
+            });
 
             SaveMetadata();
         }
 
+        /// <summary>
+        /// Unregister given entity
+        /// </summary>
         internal static void UnregisterEntityWithDetailedView(BaseEntity entity)
         {
-            LoadMetadataIfNeeded();
+            if (_isShuttingDown)
+                return;
+
+            ValidateMetadata();
 
             var baseEntityType = Utility.GetBaseEntityType(entity);
             _metadata.entities.RemoveAll(e => e.id == entity.Id && e.typeName == baseEntityType);
@@ -91,25 +122,42 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             SaveMetadata();
         }
 
+        /// <summary>
+        /// Unregister all entities
+        /// </summary>
         internal static void UnregisterAllEntities()
         {
-            LoadMetadataIfNeeded();
+            if (_isShuttingDown)
+                return;
+
+            ValidateMetadata();
 
             _metadata.entities = new List<SimpleEntity>();
 
             SaveMetadata();
         }
 
-        internal static List<BaseEntity> GetAllEntities()
+        /// <summary>
+        /// Returns all registered entities
+        /// </summary>
+        internal static List<BaseEntity> GetAllRegisteredEntities()
         {
-            LoadMetadataIfNeeded();
+            ValidateMetadata();
 
             return _metadata.entities.Select(e =>
             {
                 var entity = new BaseEntity(e.id);
                 entity.SetValue(BaseEntity.TYPE_FIELD, e.typeName);
+                if (e.subTypeName != null)
+                    entity.SetValue(WorkItem.SUBTYPE_FIELD, e.subTypeName);
                 return entity;
             }).ToList();
+        }
+
+        private static void ValidateMetadata()
+        {
+            LoadMetadataIfNeeded();
+            HandleDifferentContext();
         }
 
         private static void LoadMetadataIfNeeded()
@@ -117,12 +165,11 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             if (_metadata != null)
                 return;
 
-            HandleDifferentContext();
-
             _metadata = Utility.DeserializeFromJson(OctanePluginSettings.Default.WorkspaceSession, new WorkspaceSessionMetadata
             {
                 id = ConstructId(),
-                queries = new List<string>()
+                queries = new List<string>(),
+                entities = new List<SimpleEntity>()
             });
         }
 
@@ -136,7 +183,8 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
             _metadata = new WorkspaceSessionMetadata
             {
                 id = ConstructId(),
-                queries = new List<string>()
+                queries = new List<string>(),
+                entities = new List<SimpleEntity>()
             };
 
             SaveMetadata();
@@ -180,6 +228,9 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
 
             [DataMember]
             public string typeName;
+
+            [DataMember]
+            public string subTypeName;
         }
     }
 }

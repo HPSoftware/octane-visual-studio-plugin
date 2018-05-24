@@ -43,6 +43,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
         /// </summary>
         internal static DetailsToolWindow ObtainDetailsWindow(MainWindowPackage package, BaseEntity entity)
         {
+            WorkspaceSessionPersistanceManager.RegisterEntityWithDetailedView(entity);
             return ObtainWindow<DetailsToolWindow>(package, GetUniqueIdentifier(entity));
         }
 
@@ -110,6 +111,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
             lock (Lock)
             {
                 OpenedDetailWindows.Remove(uniqueId);
+                WorkspaceSessionPersistanceManager.UnregisterEntityWithDetailedView(viewModel.Entity);
             }
         }
 
@@ -127,6 +129,8 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
                         frame.CloseFrame((uint)__FRAMECLOSE.FRAMECLOSE_NoSave);
                 }
                 OpenedDetailWindows.Clear();
+
+                WorkspaceSessionPersistanceManager.UnregisterAllEntities();
             }
         }
 
