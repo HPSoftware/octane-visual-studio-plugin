@@ -25,7 +25,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.VisualStudio.PlatformUI;
 using Task = System.Threading.Tasks.Task;
+using System.ComponentModel;
 
 namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
 {
@@ -43,6 +45,8 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
 
         private string _filter = string.Empty;
 
+        private bool _flagForSaveButton;
+
         internal static readonly string TempPath = Path.GetTempPath() + "\\Octane_pictures\\";
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             : base(entity)
         {
             RefreshCommand = new DelegatedCommand(Refresh);
-            SaveEntityCommand = new DelegatedCommand(SaveEntity);
+            SaveEntityCommand = new DelegatedCommand(SaveEntity, false);
             OpenInBrowserCommand = new DelegatedCommand(OpenInBrowser);
             ToggleCommentSectionCommand = new DelegatedCommand(SwitchCommentSectionVisibility);
             ToggleEntityFieldVisibilityCommand = new DelegatedCommand(ToggleEntityFieldVisibility);
@@ -77,6 +81,20 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             Id = (long)entity.Id;
             EntityType = Utility.GetConcreteEntityType(Entity);
             FieldsCache.Instance.Attach(this);
+            SetSaveButtonTrue();
+        }
+
+        private void SetSaveButtonTrue()
+        {
+            int count = 0;
+            foreach (var field in _allEntityFields.Where(f => f.IsChanged))
+            {
+                count += 1;
+                break;
+            }
+            if (count != 0)
+                (SaveEntityCommand as DelegatedCommand).SetCanExecute(true);
+            NotifyPropertyChanged();
         }
 
         /// <summary>
@@ -223,6 +241,22 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
 
             NotifyPropertyChanged("FilteredEntityFields");
             NotifyPropertyChanged("VisibleFields");
+
+        }
+
+        public bool UpdateFieldsCounter()
+        {
+            var persistedVisibleFields = FieldsCache.Instance.GetVisibleFieldsForEntity(EntityType);
+            foreach (var field in _allEntityFields)
+            {
+                field.IsSelected = persistedVisibleFields.Contains(field.Name);
+                return true;
+            }
+
+            NotifyPropertyChanged("FilteredEntityFields");
+            NotifyPropertyChanged("VisibleFields");
+            return false;
+
         }
 
         #endregion
@@ -451,6 +485,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                 ErrorMessage = ex.Message;
             }
             NotifyPropertyChanged();
+
         }
 
         #endregion

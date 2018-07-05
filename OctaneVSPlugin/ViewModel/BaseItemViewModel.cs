@@ -99,7 +99,6 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs(propName));
             }
         }
-
         #endregion
     }
 }

@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace MicroFocus.Adm.Octane.VisualStudio.Common
@@ -31,6 +32,11 @@ namespace MicroFocus.Adm.Octane.VisualStudio.Common
         {
             this.handler = handler;
             canExecute = true;
+        }
+        public DelegatedCommand(Action<object> handler, bool val)
+        {
+            this.handler = handler;
+            canExecute = val;
         }
 
         public event EventHandler CanExecuteChanged;

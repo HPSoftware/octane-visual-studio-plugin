@@ -325,7 +325,7 @@
                                         BorderThickness="0"
                                         Background="{DynamicResource VsBrush.Window}"
                                         HorizontalAlignment="Left" VerticalAlignment="Center"
-                                        Command="{Binding SaveEntityCommand}"                                        
+                                        Command="{Binding SaveEntityCommand}"
                                         ToolTip="Save">
                                     <Image Source="/octane-visual-studio-plugin;component/Resources/save.png"/>
                                 </Button>
