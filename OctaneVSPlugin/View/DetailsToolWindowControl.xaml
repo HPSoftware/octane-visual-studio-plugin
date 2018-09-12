@@ -176,7 +176,7 @@
                         Grid.Column="1"
                         TextAlignment="Justify"
                         Background="{DynamicResource VsBrush.Window}"
-                        Foreground="{DynamicResource VsBrush.WindowText}"
+                        Foreground="{DynamicResource VsBrush.WindowText}"                 
                         Value="{Binding Content, Mode=TwoWay}">
                     </wpfx:DateTimePicker>
                 </Grid>

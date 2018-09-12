@@ -41,6 +41,8 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
     {
         private readonly OctaneToolWindowControl detailsControl;
 
+        private DetailedItemViewModel _divm;
+
         private static readonly HashSet<string> supportedEntityTypes = new HashSet<string>
         {
             // work item
@@ -98,16 +100,27 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
             FieldsCache.Instance.Detach(detailedItemViewModel);
         }
 
+        void PropertyChangedInDetailedItemViewModel(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsAFieldChanged")
+            {
+                var entityTypeInfo = EntityTypeRegistry.GetEntityTypeInformation(_divm.Entity);
+                Caption = $"{entityTypeInfo?.ShortLabel} *{_divm.ID}";
+            }
+
+        }
         /// <summary>
         /// Load the necessary information for the given entity
         /// </summary>
         internal void LoadEntity(BaseEntity entity)
         {
             var viewModel = new DetailedItemViewModel(entity);
+            _divm = viewModel;
             viewModel.InitializeAsync();
 
             var entityTypeInformation = EntityTypeRegistry.GetEntityTypeInformation(viewModel.Entity);
             Caption = $"{entityTypeInformation?.ShortLabel} {viewModel.ID}";
+            viewModel.PropertyChanged += PropertyChangedInDetailedItemViewModel;
             detailsControl.DataContext = viewModel;
         }
 

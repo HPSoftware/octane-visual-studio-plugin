@@ -454,6 +454,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             {
                 Mode = WindowMode.Loading;
                 NotifyPropertyChanged("Mode");
+                Console.WriteLine("First notify happened");
 
                 var entityToUpdate = new BaseEntity(Entity.Id);
                 entityToUpdate.SetValue(BaseEntity.TYPE_FIELD, Entity.TypeName);
@@ -480,6 +481,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                 ErrorMessage = ex.Message;
             }
             NotifyPropertyChanged();
+            Console.WriteLine("Last notify happened");
         }
 
         #endregion
@@ -649,6 +651,27 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             get { return CommentSectionVisibility ? HideCommentsTooltip : ShowCommentsTooltip; }
         }
 
+        #endregion
+
+        #region CheckIfFieldModified
+
+        private bool _isAFieldChanged;
+
+        public bool IsAFieldChanged
+        {
+            get
+            {
+                return _isAFieldChanged;
+            }
+            set
+            {
+                foreach (var field in _allEntityFields.Where(f => f.IsChanged))
+                {
+                    _isAFieldChanged = field.IsAFieldChangedEntity;
+                }
+                NotifyPropertyChanged("IsAFieldChanged");
+            }
+        }
         #endregion
     }
 }

@@ -18,6 +18,7 @@ using MicroFocus.Adm.Octane.Api.Core.Entities;
 using MicroFocus.Adm.Octane.Api.Core.Services;
 using MicroFocus.Adm.Octane.VisualStudio.Common;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
@@ -103,6 +104,7 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                     case "boolean":
                         _parentEntity.SetValue(Name, value);
                         IsChanged = true;
+                        IsAFieldChangedEntity = true;
                         break;
                     case "integer":
                         try
@@ -116,12 +118,14 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                             {
                                 _parentEntity.SetValue(Name, "");
                                 IsChanged = true;
+                                IsAFieldChangedEntity = true;
                             }
                         }
                         break;
                     case "string":
                         _parentEntity.SetValue(Name, value.ToString());
                         IsChanged = true;
+                        IsAFieldChangedEntity = true;
                         break;
                     case "date_time":
                         DateTime newValue = DateTime.MinValue;
@@ -135,12 +139,15 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                             _parentEntity.SetDateTimeValue(Name, DateTime.UtcNow);
                         }
                         IsChanged = true;
+                        IsAFieldChangedEntity = true;
                         break;
                 }
             }
         }
 
         public bool IsChanged { get; private set; }
+
+        public bool IsAFieldChangedEntity{ get; set; }
 
         private string FormatEntityList(EntityList<BaseEntity> value)
         {
