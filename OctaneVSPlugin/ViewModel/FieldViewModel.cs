@@ -117,6 +117,72 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
             List<FieldMetadata> myList = await FieldsMetadataService.GetFieldMetadata(entity);
             return myList;
         }
+        public async System.Threading.Tasks.Task<List<BaseEntity>> taskRetrieveData()
+        {
+            try
+            {
+                await _octaneService.Connect();
+                EntityListResult<BaseEntity> entities;
+                if (_fieldEntity.Contains("list_node") && !string.IsNullOrEmpty(logicalName))
+                {
+                    entities = _octaneService.GetEntitesReferenceListNodes(_fieldEntity, logicalName);
+                }
+                else
+                {
+                    if (_fieldEntity.Equals("workspace_users"))
+                    {
+                        List<QueryPhrase> activeUsersQuery = new List<QueryPhrase> { new LogicalQueryPhrase("activity_level", 0) };
+                        entities = _octaneService.GetEntitesReferenceFields(_fieldEntity, activeUsersQuery, null);
+                    }
+                    else
+                    {
+                        entities = _octaneService.GetEntitesReferenceFields(_fieldEntity);
+                    }
+
+                }
+
+
+                if (_fieldEntity.Equals("sprints"))
+                {
+                    _referenceFieldContent = getSprintFields(entities.data);
+                }
+                else
+                {
+                    _referenceFieldContent = entities.data;
+                }
+
+
+                if (_referenceFieldContent != null)
+                {
+                    foreach (BaseEntity be in _referenceFieldContent)
+                    {
+                        BaseEntityWrapper bew = new BaseEntityWrapper(be);
+                        _referenceFieldContentName.Add(bew);
+
+                        var selectedEntities = _parentEntity.GetValue(Name);
+
+                        if (selectedEntities != null && selectedEntities is EntityList<BaseEntity>)
+                        {
+                            EntityList<BaseEntity> selectedEntitiesList = (EntityList<BaseEntity>)selectedEntities;
+
+                            foreach (BaseEntity sbe in selectedEntitiesList.data)
+                            {
+                                if (bew.Equals(new BaseEntityWrapper(sbe)))
+                                {
+                                    bew.IsSelected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                return _referenceFieldContent;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+        }
 
         public List<BaseEntityWrapper> ReferenceFieldContent
         {
@@ -140,72 +206,6 @@ namespace MicroFocus.Adm.Octane.VisualStudio.ViewModel
                     else
                     {
                         _octaneService = OctaneServices.GetInstance();
-
-                        System.Threading.Tasks.Task taskRetrieveData = new System.Threading.Tasks.Task(async () =>
-                        {
-                            try
-                            {
-                                await _octaneService.Connect();
-                                EntityListResult<BaseEntity> entities;
-                                if (_fieldEntity.Contains("list_node") && !string.IsNullOrEmpty(logicalName))
-                                {
-                                    entities = _octaneService.GetEntitesReferenceListNodes(_fieldEntity, logicalName);
-                                }
-                                else
-                                {
-                                    if (_fieldEntity.Equals("workspace_users"))
-                                    {
-                                        List<QueryPhrase> activeUsersQuery = new List<QueryPhrase> { new LogicalQueryPhrase("activity_level", 0) };
-                                        entities = _octaneService.GetEntitesReferenceFields(_fieldEntity, activeUsersQuery, null);
-                                    }
-                                    else
-                                    {
-                                        entities = _octaneService.GetEntitesReferenceFields(_fieldEntity);
-                                    }
-
-                                }
-
-
-                                if (_fieldEntity.Equals("sprints"))
-                                {
-                                    _referenceFieldContent = getSprintFields(entities.data);
-                                }
-                                else
-                                {
-                                    _referenceFieldContent = entities.data;
-                                }
-
-
-                                if (_referenceFieldContent != null)
-                                {
-                                    foreach (BaseEntity be in _referenceFieldContent)
-                                    {
-                                        BaseEntityWrapper bew = new BaseEntityWrapper(be);
-                                        _referenceFieldContentName.Add(bew);
-
-                                        var selectedEntities = _parentEntity.GetValue(Name);
-
-                                        if (selectedEntities != null && selectedEntities is EntityList<BaseEntity>)
-                                        {
-                                            EntityList<BaseEntity> selectedEntitiesList = (EntityList<BaseEntity>)selectedEntities;
-
-                                            foreach (BaseEntity sbe in selectedEntitiesList.data)
-                                            {
-                                                if (bew.Equals(new BaseEntityWrapper(sbe)))
-                                                {
-                                                    bew.IsSelected = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                            }
-
-                        });
-                        taskRetrieveData.Start();
                     }
                 }
                 if (_filter.Equals(""))

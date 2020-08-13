@@ -100,8 +100,10 @@ namespace MicroFocus.Adm.Octane.VisualStudio.View
             
         }
         
-        private void ShowPopup(object sender, RoutedEventArgs e)
+        private async void ShowPopup(object sender, RoutedEventArgs e)
         {
+            var items = await ((FieldViewModel)EditorLabelName.DataContext).taskRetrieveData();
+
             listView.Items.Refresh();
             ComboBoxPopup.IsOpen = true;
         }
